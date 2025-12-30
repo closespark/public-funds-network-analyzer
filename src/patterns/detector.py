@@ -146,22 +146,30 @@ class NameSimilarityClusterDetector(BasePatternDetector):
     """
     
     pattern_type = PatternType.NAME_SIMILARITY_CLUSTER
+    _fuzz = None  # Cache rapidfuzz import
     
     def __init__(self, similarity_threshold: float = 0.85, min_cluster_size: int = 2, **config):
         super().__init__(**config)
         self.similarity_threshold = similarity_threshold
         self.min_cluster_size = min_cluster_size
+        # Try to import rapidfuzz once during initialization
+        if NameSimilarityClusterDetector._fuzz is None:
+            try:
+                from rapidfuzz import fuzz
+                NameSimilarityClusterDetector._fuzz = fuzz
+            except ImportError:
+                NameSimilarityClusterDetector._fuzz = False  # Mark as unavailable
     
     def detect(
         self,
         graph_builder,
     ) -> list[PatternEvidence]:
         """Detect name similarity clusters."""
-        try:
-            from rapidfuzz import fuzz
-        except ImportError:
-            # Skip if rapidfuzz not available
+        if self._fuzz is False:
+            # rapidfuzz not available
             return self._evidence
+        
+        fuzz = self._fuzz
         
         # Get all entity nodes
         entities = []
@@ -261,9 +269,10 @@ class VendorConcentrationDetector(BasePatternDetector):
             for supplier, count in supplier_counts.items():
                 concentration = count / total_contracts
                 if concentration >= self.concentration_threshold:
+                    concentration_pct = f"{concentration:.0%}"
                     evidence = PatternEvidence(
                         pattern_type=self.pattern_type,
-                        description=f"Vendor '{supplier}' received {concentration:.0%} of {agency} contracts ({count}/{total_contracts})",
+                        description=f"Vendor '{supplier}' received {concentration_pct} of {agency} contracts ({count}/{total_contracts})",
                         severity="HIGH" if concentration >= 0.7 else "MEDIUM",
                         entities_involved=[str(supplier)],
                         source_rows=[

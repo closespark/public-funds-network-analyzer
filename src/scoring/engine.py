@@ -9,7 +9,7 @@ not wrongdoing.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 import pandas as pd
@@ -67,7 +67,7 @@ class ScoredEntity:
     triggered_signals: list[dict[str, Any]]
     datasets_involved: list[str]
     explanation: str
-    scored_at: datetime = field(default_factory=datetime.utcnow)
+    scored_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""

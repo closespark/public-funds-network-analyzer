@@ -212,6 +212,10 @@ def generate_hash(value: Optional[str]) -> Optional[str]:
     if not value:
         return None
     
+    # Ensure value is a string
+    if not isinstance(value, str):
+        value = str(value)
+    
     # Use SHA-256 for deterministic hashing
     hash_bytes = hashlib.sha256(value.encode("utf-8")).hexdigest()
     
