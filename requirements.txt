@@ -1,0 +1,17 @@
+# Data processing
+pandas>=2.0.0
+
+# Graph analysis
+networkx>=3.0
+
+# Fuzzy matching
+rapidfuzz>=3.0.0
+
+# Data validation
+pydantic>=2.0.0
+
+# Hashing
+hashlib is part of stdlib
+
+# Testing
+pytest>=7.0.0
